@@ -11,6 +11,10 @@ on:
         description: "Array of docker image tags to build and push separated by commas"
         required: true
         default: "latest"
+      destination:
+        description: "Docker image destination (Docker Hub or GHCR)"
+        required: true
+        default: "dockerhub"
 
 jobs:
   build-and-publish:
@@ -29,10 +33,18 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
+        if: ${{ github.event.inputs.destination == 'dockerhub' }}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        if: ${{ github.event.inputs.destination == 'ghcr' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
         run: |
@@ -41,7 +53,11 @@ jobs:
           IFS=',' read -r -a tags <<< "${{ github.event.inputs.tags }}"
           tag_args=""
           for tag in "${tags[@]}"; do
-            tag_args="$tag_args -t eduardolat/pgbackweb:$tag"
+            if [ "${{ github.event.inputs.destination }}" == "dockerhub" ]; then
+              tag_args="$tag_args -t eduardolat/pgbackweb:$tag"
+            else:
+              tag_args="$tag_args -t ghcr.io/${{ github.repository_owner }}/pgbackweb:$tag"
+            fi
           done
 
           docker buildx build \
