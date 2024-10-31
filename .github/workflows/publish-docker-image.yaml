@@ -3,18 +3,18 @@ name: Build & Publish Docker Image
 on:
   workflow_dispatch:
     inputs:
-      commit:
-        description: "Commit SHA or branch to build"
-        required: true
-        default: "main"
       tags:
         description: "Array of docker image tags to build and push separated by commas"
         required: true
         default: "latest"
       destination:
-        description: "Docker image destination (Docker Hub or GHCR)"
+        description: "Docker image destination"
         required: true
+        type: choice
         default: "dockerhub"
+        options:
+          - dockerhub
+          - ghcr
 
 jobs:
   build-and-publish:
@@ -24,7 +24,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.commit }}
+          ref: ${{ github.ref }}
+
+      - name: Print latest commit
+        run: echo "Latest commit: $(git rev-parse HEAD)"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
