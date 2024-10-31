@@ -27,4 +27,5 @@ func MountRouter(
 	parent.POST("/:backupID/edit", h.editBackupHandler)
 	parent.POST("/:backupID/run", h.manualRunHandler)
 	parent.POST("/:backupID/duplicate", h.duplicateBackupHandler)
+	parent.POST("/validate-cron", h.validateCronHandler)
 }

@@ -18,6 +18,20 @@ import (
 	"github.com/maragudk/gomponents/html"
 )
 
+func (h *handlers) validateCronHandler(c echo.Context) error {
+	cronExpr := c.FormValue("cron_expression")
+	if cronExpr == "" {
+		return htmx.RespondToastError(c, "Cron expression is required")
+	}
+
+	isValid := validate.CronExpression(cronExpr)
+	if !isValid {
+		return htmx.RespondToastError(c, "Invalid cron expression")
+	}
+
+	return htmx.RespondToastSuccess(c, "Valid cron expression")
+}
+
 func (h *handlers) createBackupHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -43,6 +57,11 @@ func (h *handlers) createBackupHandler(c echo.Context) error {
 	}
 	if err := validate.Struct(&formData); err != nil {
 		return htmx.RespondToastError(c, err.Error())
+	}
+
+	// Validate cron expression before creating backup
+	if !validate.CronExpression(formData.CronExpression) {
+		return htmx.RespondToastError(c, "Invalid cron expression")
 	}
 
 	_, err := h.servs.BackupsService.CreateBackup(
@@ -166,16 +185,39 @@ func createBackupForm(
 			}),
 		),
 
-		component.InputControl(component.InputControlParams{
-			Name:               "cron_expression",
-			Label:              "Cron expression",
-			Placeholder:        "* * * * *",
-			Required:           true,
-			Type:               component.InputTypeText,
-			HelpText:           "The cron expression to schedule the backup",
-			Pattern:            `^\S+\s+\S+\s+\S+\s+\S+\s+\S+$`,
-			HelpButtonChildren: cronExpressionHelp(),
-		}),
+		html.Div(
+			html.Class("flex flex-col space-y-1"),
+			html.Label(
+				html.Class("block text-sm font-medium text-gray-700"),
+				gomponents.Text("Cron expression"),
+				html.Span(html.Class("text-red-500"), gomponents.Text("*")),
+			),
+			html.Div(
+				html.Class("flex space-x-2"),
+				html.Input(
+					html.Type("text"),
+					html.Name("cron_expression"),
+					html.ID("cron_expression"),
+					html.Class("block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"),
+					html.Pattern(`^\S+\s+\S+\s+\S+\s+\S+\s+\S+$`),
+					html.Required(),
+					html.Placeholder("* * * * *"),
+				),
+				html.Button(
+					html.Type("button"),
+					html.Class("btn btn-secondary"),
+					htmx.HxPost("/dashboard/backups/validate-cron"),
+					htmx.HxInclude("#cron_expression"),
+					htmx.HxSwap("none"),
+					component.SpanText("Validate"),
+					lucide.Check(),
+				),
+			),
+			html.P(
+				html.Class("mt-1 text-sm text-gray-500"),
+				gomponents.Text("The cron expression to schedule the backup"),
+			),
+		),
 
 		component.SelectControl(component.SelectControlParams{
 			Name:        "time_zone",
