@@ -2,3 +2,29 @@ html {
   overflow-x: hidden;
   overflow-y: auto;
 }
+
+/* Media queries for mobile screens */
+@media (max-width: 600px) {
+  body {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .container {
+    width: 100%;
+    padding: 0 10px;
+  }
+
+  .header, .footer {
+    padding: 10px;
+    text-align: center;
+  }
+
+  .main-content {
+    padding: 10px;
+  }
+
+  .card {
+    margin: 10px 0;
+  }
+}

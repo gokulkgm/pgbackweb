@@ -21,3 +21,22 @@
     scrollbar-width: thin;
   }
 }
+
+/* Media queries for mobile screens */
+@media (max-width: 600px) {
+  *::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    @apply bg-gray-400;
+    border-radius: 2px;
+  }
+
+  @-moz-document url-prefix() {
+    * {
+      scrollbar-width: thin;
+    }
+  }
+}

@@ -68,8 +68,14 @@ export function initHelpers () {
     }
   }
 
+  function handleResize() {
+    const isMobile = window.innerWidth <= 600
+    document.body.classList.toggle('mobile', isMobile)
+  }
+
   window.debounce = debounce
   window.copyToClipboard = copyToClipboard
   window.textareaAutoGrow = textareaAutoGrow
   window.formatJson = formatJson
+  window.handleResize = handleResize
 }

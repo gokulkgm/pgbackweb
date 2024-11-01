@@ -36,14 +36,15 @@ func Dashboard(reqCtx reqctx.Ctx, params DashboardParams) gomponents.Node {
 			components.Classes{
 				"w-screen h-screen bg-base-200":      true,
 				"flex justify-start overflow-hidden": true,
+				"mobile:flex-col mobile:overflow-auto": true, // Add media queries for mobile screens
 			},
 			dashboardAside(),
 			html.Div(
-				html.Class("flex-grow overflow-y-auto"),
+				html.Class("flex-grow overflow-y-auto mobile:overflow-visible"), // Adjust layout to be more flexible and responsive
 				dashboardHeader(),
 				html.Main(
 					html.ID("dashboard-main"),
-					html.Class("p-4"),
+					html.Class("p-4 mobile:p-2"), // Adjust layout to be more flexible and responsive
 					gomponents.Group(params.Body),
 				),
 			),

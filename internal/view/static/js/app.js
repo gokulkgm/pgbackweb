@@ -13,3 +13,15 @@ initHTMX()
 initAlpineComponents()
 initHelpers()
 initDashboardAsideScroll()
+
+// Add event listeners to handle mobile responsiveness
+window.addEventListener('resize', handleResize)
+window.addEventListener('orientationchange', handleResize)
+
+function handleResize() {
+  const isMobile = window.innerWidth <= 600
+  document.body.classList.toggle('mobile', isMobile)
+}
+
+// Initial check
+handleResize()
